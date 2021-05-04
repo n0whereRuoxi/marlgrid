@@ -399,6 +399,12 @@ class MultiGridEnv(gym.Env):
                 "To add an agent to a marlgrid environment, call add_agent with either a GridAgentInterface object "
                 " or a dictionary that can be used to initialize one.")
 
+    def _rand_int(self, low, high):
+        """
+        Generate random integer in [low,high[
+        """
+        return self.np_random.randint(low, high)
+
     def reset(self, **kwargs):
         for agent in self.agents:
             agent.agents = []

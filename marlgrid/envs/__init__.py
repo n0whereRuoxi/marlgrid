@@ -119,3 +119,7 @@ register_marl_env(
         'n_bonus_tiles': 3
     }
 )
+
+register_marl_env(
+    "MarlGrid-2AgentDoorKey9x9-v0", DoorKeyEnv, n_agents=2, grid_size=9, view_size=7
+)
