@@ -123,3 +123,7 @@ register_marl_env(
 register_marl_env(
     "MarlGrid-2AgentDoorKey9x9-v0", DoorKeyEnv, n_agents=2, grid_size=9, view_size=7
 )
+
+register_marl_env(
+    "MarlGrid-1AgentDoorKey9x9-v0", DoorKeyEnv, n_agents=1, grid_size=9, view_size=7
+)

@@ -7,7 +7,6 @@ import gym_minigrid
 from enum import IntEnum
 import math
 import warnings
-
 from .objects import WorldObj, Wall, Goal, Lava, GridAgent, BonusTile, BulkObj, COLORS
 from .agents import GridAgentInterface
 from .rendering import SimpleImageViewer
@@ -15,6 +14,75 @@ from gym_minigrid.rendering import fill_coords, point_in_rect, downsample, highl
 
 TILE_PIXELS = 32
 
+next_state_number = 0
+
+def _print_state(state,heading=None,indent=4):
+    """
+    Print the state-variables and values in 'state', which may be
+    either a state object or a goal object. The optional arguments are:
+    - heading, a heading to print beforehand.
+    - indent, a number that tells how much to indent each line
+    """
+    if heading == None: heading = get_type(state)
+    if state != False:
+        print("{}: {}".format(heading,state.__name__))
+        for (varname,val) in vars(state).items():
+            if varname != '__name__':
+                print("{}{}.{} = {}".format(' '*indent, state.__name__, varname, val))
+    else: 
+        if heading == None: heading = 'state'
+        print('{} = False'.format(heading))
+
+def get_type(object):
+    "Return object's type name"
+    return type(object).__name__
+
+class State():
+    """
+    s = State(state_name) creates a State object named state_name that's a container
+    for state-variable bindings representing a state-of-the-world. The argument
+    state_name is optional. If you omit it, a name of the form state_# will be 
+    assigned, where # is an integer. For example, to specify a state in which 
+    box b is in room room2 and box c is in room room3, you might write this:
+       s = State()
+       # create an empty dictionary for state variables of the form 'loc[argname]'
+       s.loc = {}
+       s.loc['b'] = 'room2'
+       s.loc['c'] = 'room3'
+    """
+    def __init__(self,name=None):
+        """
+        If 'name' is given, then give the state that name. Otherwise,
+        give it a name of the form 'state_#' where # is an integer.
+        """
+        global next_state_number
+        if name:
+            self.__name__ = name
+        else:
+            self.__name__ = 'state_{}'.format(next_state_number)
+            next_state_number += 1
+
+    def copy(self,name=None):
+        """
+        Make a copy of the state. If name is given, then give the copy that name.
+        Otherwise give it a name of the form 'state_#' where # is an integer.
+        """
+        global next_state_number
+        state = copy.deepcopy(self)
+        if name:
+            state.__name__ = name
+        else:
+            state.__name__ = 'state_{}'.format(next_state_number)
+            next_state_number += 1
+        return state
+
+    def display(self,heading=None,indent=4):
+        """
+        Print the state's state-variables and their values. The arguments are:
+         - heading (optional) is a heading to print beforehand.
+         - indent (optional) is a number that tells how much to indent each line
+        """
+        _print_state(self,heading=heading,indent=indent)
 
 class ObjectRegistry:
     '''
@@ -105,6 +173,31 @@ class MultiGrid:
         transparent_fun = np.vectorize(lambda k: (self.obj_reg.key_to_obj_map[k].see_behind() if hasattr(self.obj_reg.key_to_obj_map[k], 'see_behind') else True))
         return ~transparent_fun(self.grid)
 
+    def __contains__(self, key):
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[i])):
+                e = self.obj_reg.key_to_obj_map[self.grid[i, j]]
+                if e is None:
+                    continue
+                if (e.color, e.type) == key:
+                    return True
+                if key[0] is None and key[1] == e.type:
+                    return True
+        return False
+
+    def where_is(self, key):
+        for i in range(len(self.grid)):
+            for j in range(len(self.grid[i])):
+                obj = self.obj_reg.key_to_obj_map[self.grid[i, j]]
+                if obj is None:
+                    continue
+                if (obj.color, obj.type) == key:
+                    return (i,j)
+                if key[0] is None and key[1] == obj.type:
+                    return (i,j)
+        return None
+
+
     def __getitem__(self, *args, **kwargs):
         return self.__class__(
             np.ndarray.__getitem__(self.grid, *args, **kwargs),
@@ -118,7 +211,6 @@ class MultiGrid:
             obj_reg=self.obj_reg,
             orientation=(self.orientation - k) % 4,
         )
-
 
     def slice(self, topX, topY, width, height, rot_k=0):
         """
@@ -330,7 +422,6 @@ class MultiGrid:
 
         return img
 
-
 class MultiGridEnv(gym.Env):
     def __init__(
         self,
@@ -345,6 +436,7 @@ class MultiGridEnv(gym.Env):
         ghost_mode=True,
         agent_spawn_kwargs = {}
     ):
+        self.state = State()
 
         if grid_size is not None:
             assert width == None and height == None
@@ -504,6 +596,13 @@ class MultiGridEnv(gym.Env):
                 print(" > ", a.color,'-', al)
             import pdb; pdb.set_trace()
 
+    def trigger_event(self):
+        for i in range(len(self.grid.grid)):
+            for j in range(len(self.grid.grid[i])):
+                e = self.grid.obj_reg.key_to_obj_map[self.grid.grid[i, j]]
+                if e:
+                    e.event()
+
     def step(self, actions):
         # Spawn agents if it's time.
         for agent in self.agents:
@@ -617,6 +716,17 @@ class MultiGridEnv(gym.Env):
                         wasted = bool(fwd_cell.toggle(agent, fwd_pos))
                     else:
                         pass
+
+                # Hold an object
+                elif action == agent.actions.hold:
+                    if fwd_cell and fwd_cell.can_hold():
+                        fwd_cell.hold()
+                    else:
+                        pass
+
+                # Wait action (not used by default)
+                elif action == agent.actions.wait:
+                    pass
 
                 # Done action (not used by default)
                 elif action == agent.actions.done:

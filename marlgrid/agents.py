@@ -14,7 +14,9 @@ class GridAgentInterface(GridAgent):
         pickup = 3  # Pick up an object
         drop = 4  # Drop an object
         toggle = 5  # Toggle/activate an object
-        done = 6  # Done completing task
+        hold = 6  # Done completing task
+        wait = 7
+        done = 8  # Done completing task
 
     def __init__(
             self,
