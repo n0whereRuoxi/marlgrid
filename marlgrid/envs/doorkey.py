@@ -44,7 +44,7 @@ class DoorKeyEnv(MultiGridEnv):
         #     if coordinate:
         #         absolute_coordinate = self.get_absolute_coordinate(coordinate, self.agents[0].pos, self.agents[0].dir)
         #         self.state.loc['Key'] = absolute_coordinate
-        if self.agents[0].carrying and self.agents[0].carrying.type == 'Key':
+        if self.agents[1].carrying and self.agents[1].carrying.type == 'Key':
             self.state.loc['Key'] = 'Agent'
         for i in range(len(grid.grid)):
             for j in range(len(grid.grid[i])):

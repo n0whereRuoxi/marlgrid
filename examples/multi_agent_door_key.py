@@ -46,9 +46,12 @@ def o_open_door(obs):
 def o_hold_door(obs):
     return 'hold'
 
-def o_cross_door(env):
-    yield env.actions.forward
-    yield env.actions.forward
+def o_cross_door(obs):
+    yield 'left'
+    yield 'left'
+    yield 'forward'
+    yield 'forward'
+    yield 'forward'
 
 def o_go_to_goal(env):
     grid = observe(env)
@@ -114,7 +117,7 @@ def o_go_to_goal_0(env):
             idx = grid.where_is(('green', 'goal'))
     yield env.actions.forward
 
-env = gym.make('MarlGrid-1AgentDoorKey9x9-v0')
+env = gym.make('MarlGrid-2AgentDoorKey9x9-v0')
 
 env.max_steps = 200
 obs = env.reset()
@@ -123,9 +126,10 @@ env.recording = True
 count = 0
 done = False
 
+o_c_d = list(o_cross_door(None))
 while not done:
     env.render()
-    obs, _ = env.gen_obs_grid(env.agents[0])
+    obs, _ = env.gen_obs_grid(env.agents[1])
     print(obs)
     env.ground_grid_obs(obs)
     env.state.display()
@@ -139,8 +143,9 @@ while not done:
         action = o_hold_door(obs)
     else:
         action = 'wait'
-    act = getattr(env.agents[0].actions, action)
-    obs, rew, done, _ = env.step([act])
-    print(count, [act])
+    act1 = getattr(env.agents[0].actions, o_c_d[count - 5] if count >= 5 and count <10 else 'wait')
+    act2 = getattr(env.agents[0].actions, action)
+    obs, rew, done, _ = env.step([act1, act2])
+    print(count, [act1, act2])
     env.trigger_event()
     count += 1
