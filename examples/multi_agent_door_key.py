@@ -139,7 +139,7 @@ while not done:
         action = o_get_key(obs)
     elif env.state.status['Door'] != 'closed' and env.state.status['Door'] != 'held':
         action = o_open_door(obs)
-    elif count < 30:
+    elif count < 13:
         action = o_hold_door(obs)
     else:
         action = 'wait'
