@@ -14,9 +14,12 @@ class GridAgentInterface(GridAgent):
         pickup = 3  # Pick up an object
         drop = 4  # Drop an object
         toggle = 5  # Toggle/activate an object
-        hold = 6  # Done completing task
-        wait = 7
-        done = 8  # Done completing task
+        # hold = 6
+        grasp = 6
+        slide = 7
+        release = 8
+        wait = 9
+        done = 10  # Done completing task
 
     def __init__(
             self,
@@ -165,6 +168,7 @@ class GridAgentInterface(GridAgent):
         self.active = False
         self.pos = None
         self.carrying = None
+        self.grasping = None
         self.mission = ""
         if new_episode:
             self.prestige = 0

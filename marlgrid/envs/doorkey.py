@@ -50,7 +50,7 @@ class DoorKeyEnv(MultiGridEnv):
             for j in range(len(grid.grid[i])):
                 e = grid.obj_reg.key_to_obj_map[grid.grid[i, j]]
                 if e and e.type == 'Door':
-                    self.state.status['Door'] = 'held' if e.state == e.states.held else 'closed' if e.state == e.states.closed else 'locked'
+                    self.state.status['Door'] = 'open' if e.state == e.states.open else 'closed' if e.state == e.states.closed else 'locked'
         # self.state.loc['Agent'] = (self.agents[0].pos[0], self.agents[0].pos[1])
         # self.state.dir['Agent'] = self.agents[0].dir
 

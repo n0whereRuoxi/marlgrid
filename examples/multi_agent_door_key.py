@@ -26,7 +26,7 @@ def o_get_key(obs):
     if idx > 45:
         return 'right'
 
-def o_open_door(obs):
+def o_unlock_door(obs):
     if ('yellow', 'Door') not in obs:
         move_action_list = ['left', 'right', 'forward']
         action = random.choice(move_action_list)
@@ -45,6 +45,10 @@ def o_open_door(obs):
 
 def o_hold_door(obs):
     return 'hold'
+
+def o_open_door(obs):
+    yield 'grasp'
+    yield 'slide'
 
 def o_cross_door(obs):
     yield 'left'
@@ -127,6 +131,7 @@ count = 0
 done = False
 
 o_c_d = list(o_cross_door(None))
+# o_o_d = list(o_open_door(None))
 while not done:
     env.render()
     obs, _ = env.gen_obs_grid(env.agents[1])
@@ -137,15 +142,17 @@ while not done:
     # act = env.action_space.sample()
     if env.state.loc['Key'] != 'Agent':
         action = o_get_key(obs)
-    elif env.state.status['Door'] != 'closed' and env.state.status['Door'] != 'held':
-        action = o_open_door(obs)
-    elif count < 13:
-        action = o_hold_door(obs)
+    elif env.state.status['Door'] != 'closed' and env.state.status['Door'] != 'open':
+        action = o_unlock_door(obs)
+    elif env.state.status['Door'] != 'locked' and env.state.status['Door'] != 'open':
+        action = 'grasp' if not env.agents[1].grasping else 'slide'
     else:
         action = 'wait'
+    print(count, action)
     act1 = getattr(env.agents[0].actions, o_c_d[count - 5] if count >= 5 and count <10 else 'wait')
     act2 = getattr(env.agents[0].actions, action)
-    obs, rew, done, _ = env.step([act1, act2])
     print(count, [act1, act2])
+    obs, rew, done, _ = env.step([act1, act2])
+    # print(count, [act1, act2])
     env.trigger_event()
     count += 1

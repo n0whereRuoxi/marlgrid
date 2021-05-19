@@ -82,6 +82,12 @@ class WorldObj(metaclass=RegisteredObjectType):
     def can_hold(self):
         return False
 
+    def can_slide(self):
+        return False
+
+    def can_grasp(self):
+        return False
+
     def can_pickup(self):
         return False
 
@@ -260,7 +266,6 @@ class EmptySpace(WorldObj):
     def str_render(self, dir=0):
         return "  "
 
-
 class Lava(WorldObj):
     def can_overlap(self):
         return True# and self.agent is None
@@ -282,7 +287,6 @@ class Lava(WorldObj):
             fill_coords(img, point_in_line(0.3, yhi, 0.5, ylo, r=0.03), (0, 0, 0))
             fill_coords(img, point_in_line(0.5, ylo, 0.7, yhi, r=0.03), (0, 0, 0))
             fill_coords(img, point_in_line(0.7, yhi, 0.9, ylo, r=0.03), (0, 0, 0))
-
 
 class Wall(BulkObj):
     def see_behind(self):
@@ -316,7 +320,6 @@ class Key(WorldObj):
         fill_coords(img, point_in_circle(cx=0.56, cy=0.28, r=0.190), c)
         fill_coords(img, point_in_circle(cx=0.56, cy=0.28, r=0.064), (0, 0, 0))
 
-
 class Ball(WorldObj):
     def can_pickup(self):
         return True
@@ -327,29 +330,34 @@ class Ball(WorldObj):
     def render(self, img):
         fill_coords(img, point_in_circle(0.5, 0.5, 0.31), COLORS[self.color])
 
-
 class Door(WorldObj):
-    states = IntEnum("door_state", "held closed locked")
+    states = IntEnum("door_state", "open closed locked")
     held_idx = 0
 
     def event(self):
-        # # pass
-        # print(self.states != self.states.locked)
-        print(self.state == self.states.held, self.state == self.states.closed, self.state == self.states.locked,self.held_idx)
-        if self.state == self.states.held:
-            if self.held_idx == 0:
-                self.held_idx  = 1
-            elif self.held_idx == 1:
-                self.state = self.states.closed
+        pass
+        # # print(self.states != self.states.locked)
+        # print(self.state == self.states.open, self.state == self.states.closed, self.state == self.states.locked, self.held_idx)
+        # if self.state == self.states.open:
+        #     if self.held_idx == 0:
+        #         self.held_idx  = 1
+        #     elif self.held_idx == 1:
+        #         self.state = self.states.closed
 
     def can_overlap(self):
-        return self.state == self.states.held# and self.agent is None  # is held
+        return self.state == self.states.open# and self.agent is None  # is open
 
     def can_hold(self):
         return True
 
+    def can_slide(self):
+        return True
+
+    def can_grasp(self):
+        return True
+    
     def see_behind(self):
-        return self.state == self.states.held  # is held
+        return self.state == self.states.open  # is open
 
     def toggle(self, agent, pos):
         if self.state == self.states.locked:  # is locked
@@ -361,21 +369,27 @@ class Door(WorldObj):
             ):
                 self.state = self.states.closed
         # elif self.state == self.states.closed:  # is unlocked but closed
-        #     self.state = self.states.held
-        # elif self.state == self.states.held:  # is held
+        #     self.state = self.states.open
+        # elif self.state == self.states.open:  # is open
         #     self.state = self.states.closed
         return True
 
-    def hold(self):
+    # def hold(self):
+    #     if self.state == self.states.closed:  # is unlocked but closed
+    #         self.state = self.states.open
+    #     self.held_idx = 0
+    #     return True
+
+    def slide(self):
         if self.state == self.states.closed:  # is unlocked but closed
-            self.state = self.states.held
+            self.state = self.states.open
         self.held_idx = 0
         return True
 
     def render(self, img):
         c = COLORS[self.color]
 
-        if self.state == self.states.held:
+        if self.state == self.states.open:
             fill_coords(img, point_in_rect(0.88, 1.00, 0.00, 1.00), c)
             fill_coords(img, point_in_rect(0.92, 0.96, 0.04, 0.96), (0, 0, 0))
             return

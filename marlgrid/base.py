@@ -717,12 +717,35 @@ class MultiGridEnv(gym.Env):
                     else:
                         pass
 
-                # Hold an object
-                elif action == agent.actions.hold:
-                    if fwd_cell and fwd_cell.can_hold():
-                        fwd_cell.hold()
+                # # Hold an object
+                # elif action == agent.actions.hold:
+                #     if fwd_cell and fwd_cell.can_hold():
+                #         fwd_cell.hold()
+                #     else:
+                #         pass
+
+                # Grasp an object
+                elif action == agent.actions.grasp:
+                    if fwd_cell and fwd_cell.can_grasp():
+                        fwd_cell.can_grasp()
+                        if agent.grasping is None:
+                            agent.grasping = fwd_cell
+                            # agent.carrying.cur_pos = np.array([-1, -1])
+                            # self.grid.set(*fwd_pos, None)
                     else:
                         pass
+
+                # slide a spring door
+                elif action == agent.actions.slide:
+                    if agent.grasping and agent.grasping.can_slide():
+                        agent.grasping.slide()
+                        # if agent.grasping is None:
+                            # agent.grasping = fwd_cell
+                            # agent.carrying.cur_pos = np.array([-1, -1])
+                            # self.grid.set(*fwd_pos, None)
+                    else:
+                        pass
+
 
                 # Wait action (not used by default)
                 elif action == agent.actions.wait:
