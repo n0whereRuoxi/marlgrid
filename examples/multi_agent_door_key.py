@@ -146,6 +146,8 @@ while not done:
         action = o_unlock_door(obs)
     elif env.state.status['Door'] != 'locked' and env.state.status['Door'] != 'open':
         action = 'grasp' if not env.agents[1].grasping else 'slide'
+    elif count == 13:
+        action = 'ungrasp'
     else:
         action = 'wait'
     print(count, action)

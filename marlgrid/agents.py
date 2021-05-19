@@ -20,6 +20,7 @@ class GridAgentInterface(GridAgent):
         release = 8
         wait = 9
         done = 10  # Done completing task
+        ungrasp = 11
 
     def __init__(
             self,

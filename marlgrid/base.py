@@ -727,11 +727,19 @@ class MultiGridEnv(gym.Env):
                 # Grasp an object
                 elif action == agent.actions.grasp:
                     if fwd_cell and fwd_cell.can_grasp():
-                        fwd_cell.can_grasp()
                         if agent.grasping is None:
                             agent.grasping = fwd_cell
+                            fwd_cell.grasped = True
                             # agent.carrying.cur_pos = np.array([-1, -1])
                             # self.grid.set(*fwd_pos, None)
+                    else:
+                        pass
+
+                # Ungrasp an object
+                elif action == agent.actions.ungrasp:
+                    if agent.grasping:
+                        agent.grasping.grasped = False
+                        agent.grasping = None
                     else:
                         pass
 

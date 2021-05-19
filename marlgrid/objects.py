@@ -332,17 +332,17 @@ class Ball(WorldObj):
 
 class Door(WorldObj):
     states = IntEnum("door_state", "open closed locked")
-    held_idx = 0
-
+    # open_idx = 0
+    grasped = False 
     def event(self):
-        pass
-        # # print(self.states != self.states.locked)
-        # print(self.state == self.states.open, self.state == self.states.closed, self.state == self.states.locked, self.held_idx)
-        # if self.state == self.states.open:
-        #     if self.held_idx == 0:
-        #         self.held_idx  = 1
-        #     elif self.held_idx == 1:
-        #         self.state = self.states.closed
+        # pass
+        # print(self.states != self.states.locked)
+        # print(self.state == self.states.open, self.state == self.states.closed, self.state == self.states.locked, self.open_idx)
+        if self.state == self.states.open and not self.grasped:
+            # if self.open_idx == 0:
+            #     self.open_idx = 1
+            # elif self.open_idx == 1:
+                self.state = self.states.closed
 
     def can_overlap(self):
         return self.state == self.states.open# and self.agent is None  # is open
@@ -377,13 +377,13 @@ class Door(WorldObj):
     # def hold(self):
     #     if self.state == self.states.closed:  # is unlocked but closed
     #         self.state = self.states.open
-    #     self.held_idx = 0
+    #     self.open_idx = 0
     #     return True
 
     def slide(self):
         if self.state == self.states.closed:  # is unlocked but closed
             self.state = self.states.open
-        self.held_idx = 0
+        # self.open_idx = 0
         return True
 
     def render(self, img):
