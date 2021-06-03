@@ -1,3 +1,6 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from marlgrid.utils.video import GridRecorder
 import gym_minigrid
 import marlgrid.envs
@@ -17,7 +20,6 @@ def o_get_key(obs):
     idx = obs.where_is(('yellow', 'Key'))
     idx = idx[0] + idx[1] * 7
     if idx == 38:
-        monitor_get_key = True
         return 'pickup'
     if idx < 42:
         return 'forward'
@@ -34,7 +36,6 @@ def o_unlock_door(obs):
     idx = obs.where_is(('yellow', 'Door'))
     idx = idx[0] + idx[1] * 7
     if idx == 38:
-        monitor_get_key = True
         return 'toggle'
     if idx < 42:
         return 'forward'
@@ -49,6 +50,22 @@ def o_hold_door(obs):
 def o_open_door(obs):
     yield 'grasp'
     yield 'slide'
+
+def o_approach_door(obs):
+    if ('yellow', 'Door') not in obs:
+        move_action_list = ['left', 'right', 'forward']
+        action = random.choice(move_action_list)
+        return action
+    idx = obs.where_is(('yellow', 'Door'))
+    idx = idx[0] + idx[1] * 7
+    if idx == 38:
+        return 'pickup'
+    if idx < 42:
+        return 'forward'
+    if idx < 45:
+        return 'left'
+    if idx > 45:
+        return 'right'
 
 def o_cross_door(obs):
     yield 'left'
@@ -134,17 +151,17 @@ o_c_d = list(o_cross_door(None))
 # o_o_d = list(o_open_door(None))
 while not done:
     env.render()
-    obs, _ = env.gen_obs_grid(env.agents[1])
-    print(obs)
-    env.ground_grid_obs(obs)
+    obs_red, _ = env.gen_obs_grid(env.agents[0])
+    obs_blue, _ = env.gen_obs_grid(env.agents[1])
+    env.ground_grid_obs(obs_blue)
     env.state.display()
     time.sleep(1)
     # act = env.action_space.sample()
-    if env.state.loc['Key'] != 'Agent':
-        action = o_get_key(obs)
+    if env.state.loc['Key'] != 'Blue':
+        action = o_get_key(obs_blue)
     elif env.state.status['Door'] != 'closed' and env.state.status['Door'] != 'open':
-        action = o_unlock_door(obs)
-    elif env.state.status['Door'] != 'locked' and env.state.status['Door'] != 'open':
+        action = o_unlock_door(obs_blue)
+    elif env.state.status['Door'] != 'locked' and env.state.status['Door'] != 'open' and count < 13:
         action = 'grasp' if not env.agents[1].grasping else 'slide'
     elif count == 13:
         action = 'ungrasp'

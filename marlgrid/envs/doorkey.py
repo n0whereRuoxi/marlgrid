@@ -33,10 +33,10 @@ class DoorKeyEnv(MultiGridEnv):
         self.agent_spawn_kwargs = {}
         self.place_agents(**self.agent_spawn_kwargs)
         # initialize symbolic state
-        self.state.loc = {'Agent': None, 'Goal': None, 'Key': None, 'Door': None}
+        self.state.loc = {'Blue': None, 'Red': None, 'Goal': None, 'Key': None, 'Door': None}
         self.state.status = {'Door': None}
-        self.state.dir = {'Agent': None}
-        self.state.room = {'Agent': None}
+        self.state.dir = {'Blue': None}
+        self.state.room = {'Blue': None}
 
     def ground_grid_obs(self, grid):
         # if ('yellow', 'Key') in grid: 
@@ -45,13 +45,14 @@ class DoorKeyEnv(MultiGridEnv):
         #         absolute_coordinate = self.get_absolute_coordinate(coordinate, self.agents[0].pos, self.agents[0].dir)
         #         self.state.loc['Key'] = absolute_coordinate
         if self.agents[1].carrying and self.agents[1].carrying.type == 'Key':
-            self.state.loc['Key'] = 'Agent'
+            self.state.loc['Key'] = 'Blue'
         for i in range(len(grid.grid)):
             for j in range(len(grid.grid[i])):
                 e = grid.obj_reg.key_to_obj_map[grid.grid[i, j]]
                 if e and e.type == 'Door':
                     self.state.status['Door'] = 'open' if e.state == e.states.open else 'closed' if e.state == e.states.closed else 'locked'
-        # self.state.loc['Agent'] = (self.agents[0].pos[0], self.agents[0].pos[1])
+        self.state.loc['Red'] = (self.agents[0].pos[0], self.agents[0].pos[1])
+        self.state.loc['Blue'] = (self.agents[1].pos[0], self.agents[1].pos[1])
         # self.state.dir['Agent'] = self.agents[0].dir
 
     def get_absolute_coordinate(self, relative_coordinate, pos, dir):
