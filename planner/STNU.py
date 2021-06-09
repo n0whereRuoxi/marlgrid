@@ -2,6 +2,11 @@ class TimePoint:
     def __init__(self, id):
         self.id = id
         self.adjacent = {}
+        self.triggered = False
+        self.frm = []
+
+    def trigger(self):
+        self.triggered = True
 
     def __str__(self):
         return str(self.id) + ' adjacent: ' + str([x.id for x in self.adjacent])
@@ -18,7 +23,7 @@ class TimePoint:
     def get_weight(self, neighbor):
         return self.adjacent[neighbor]
 
-class STNU:
+class STNU: # TO-DO: change this to STN
     def __init__(self):
         self.vert_dict = {}
         self.num_vertices = 0
@@ -45,6 +50,7 @@ class STNU:
             self.add_vertex(to)
 
         self.vert_dict[frm].add_neighbor(self.vert_dict[to], cost)
+        self.vert_dict[to].frm.append(frm)
         # self.vert_dict[to].add_neighbor(self.vert_dict[frm], cost)
 
     def get_vertices(self):

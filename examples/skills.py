@@ -17,6 +17,7 @@ class Skill:
 # pass a general predicate to those two skills
 
 def get_key(obs, args):
+    print('get_key')
     if ('yellow', 'Key') not in obs:
         move_action_list = ['left', 'right', 'forward']
         action = random.choice(move_action_list)
@@ -34,6 +35,7 @@ def get_key(obs, args):
 skill_get_key = Skill(get_key, lambda s,a: True, lambda s,a: True, lambda state, args: state.loc[args[1]] == args[0])
 
 def unlock_door(obs, args):
+    print('unlock_door')
     if ('yellow', 'Door') not in obs:
         move_action_list = ['left', 'right', 'forward']
         action = random.choice(move_action_list)
@@ -51,6 +53,7 @@ def unlock_door(obs, args):
 skill_unlock_door = Skill(unlock_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.status[args[1]] != 'locked')
 
 def open_door(obs, args):
+    print('open_door')
     if not obs.get(3,5).grasped:
         return 'grasp'
     else:
@@ -58,6 +61,7 @@ def open_door(obs, args):
 skill_open_door = Skill(open_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.status[args[1]] == 'open')
 
 def approach_door(obs, args):
+    print('approach_door')
     if ('yellow', 'Door') not in obs:
         move_action_list = ['left', 'right', 'forward']
         action = random.choice(move_action_list)
@@ -76,9 +80,10 @@ def approach_door_termination(state, args):
 skill_approach_door = Skill(approach_door, lambda s,a: True, lambda s,a: True, approach_door_termination)
 
 def cross_door(obs, args):
+    print('cross_door')
     if obs.get(3,5).__class__.__name__ == 'Door':
         return 'forward'
     elif obs.get(3,6).__class__.__name__ == 'Door':
         print(3,6, obs.get(3,6))
         return 'forward'
-skill_cross_door = Skill(cross_door, lambda s,a: True, lambda s,a: True, lambda state,args: False)
+skill_cross_door = Skill(cross_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.loc['Door'][0] == state.loc['Red'][0] + 1 )
