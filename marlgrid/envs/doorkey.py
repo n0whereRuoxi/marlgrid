@@ -34,26 +34,34 @@ class DoorKeyEnv(MultiGridEnv):
         self.place_agents(**self.agent_spawn_kwargs)
         # initialize symbolic state
         self.state.loc = {'Blue': None, 'Red': None, 'Goal': None, 'Key': None, 'Door': None}
+        self.state.orientation = {'Blue': None, 'Red': None}
         self.state.status = {'Door': None}
-        self.state.dir = {'Blue': None}
+        self.state.dir = {'Blue': None, 'Red': None}
         self.state.room = {'Blue': None}
-
-    def ground_grid_obs(self, grid):
+        # TO-DO: engineering the predicates/ representation learning
+        # TO-DO: do we need predicates? at(red, door, back)
+    def ground_grid_obs(self, red_obs, blue_obs):
         # if ('yellow', 'Key') in grid: 
         #     coordinate= grid.relative_coordinate_of(('yellow', 'Key'))
         #     if coordinate:
         #         absolute_coordinate = self.get_absolute_coordinate(coordinate, self.agents[0].pos, self.agents[0].dir)
-        #         self.state.loc['Key'] = absolute_coordinate
+        #         self.state.loc['Key'] = absolute_coordinate\
+
+        # ground obs for red agent
+        self.state.loc['Red'] = (self.agents[0].pos[0], self.agents[0].pos[1])
+        self.state.dir['Red'] = self.agents[0].dir
+        # ground obs for blue agent
         if self.agents[1].carrying and self.agents[1].carrying.type == 'Key':
             self.state.loc['Key'] = 'Blue'
-        for i in range(len(grid.grid)):
-            for j in range(len(grid.grid[i])):
-                e = grid.obj_reg.key_to_obj_map[grid.grid[i, j]]
+        for i in range(len(blue_obs.grid)):
+            for j in range(len(blue_obs.grid[i])):
+                e = blue_obs.obj_reg.key_to_obj_map[blue_obs.grid[i, j]]
                 if e and e.type == 'Door':
                     self.state.status['Door'] = 'open' if e.state == e.states.open else 'closed' if e.state == e.states.closed else 'locked'
-        self.state.loc['Red'] = (self.agents[0].pos[0], self.agents[0].pos[1])
+                    absolute_coordinate = self.get_absolute_coordinate((j, i), self.agents[1].pos, self.agents[1].dir)
+                    self.state.loc['Door'] = absolute_coordinate
         self.state.loc['Blue'] = (self.agents[1].pos[0], self.agents[1].pos[1])
-        # self.state.dir['Agent'] = self.agents[0].dir
+        self.state.dir['Blue'] = self.agents[1].dir
 
     def get_absolute_coordinate(self, relative_coordinate, pos, dir):
         (x, y) = relative_coordinate

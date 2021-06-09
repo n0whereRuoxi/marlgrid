@@ -527,7 +527,6 @@ class MultiGridEnv(gym.Env):
         grid = self.grid.slice(
             topX, topY, agent.view_size, agent.view_size, rot_k=agent.dir + 1
         )
-
         # Process occluders and visibility
         # Note that this incurs some slight performance cost
         vis_mask = agent.process_vis(grid.opacity)
