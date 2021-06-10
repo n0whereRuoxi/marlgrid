@@ -50,7 +50,7 @@ def unlock_door(obs, args):
         return 'left'
     if idx > 45:
         return 'right'
-skill_unlock_door = Skill(unlock_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.status[args[1]] != 'locked')
+skill_unlock_door = Skill(unlock_door, lambda state, args: state.loc['Key'] == args[0], lambda s,a: True, lambda state,args: state.status[args[1]] != 'locked')
 
 def open_door(obs, args):
     print('open_door')
@@ -58,7 +58,11 @@ def open_door(obs, args):
         return 'grasp'
     else:
         return 'slide'
-skill_open_door = Skill(open_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.status[args[1]] == 'open')
+skill_open_door = Skill(open_door, lambda state, args: state.status[args[1]] != 'locked', lambda s,a: True, lambda state,args: state.status[args[1]] == 'open')
+
+def close_door(obs, args):
+    return 'ungrasp'
+skill_close_door = Skill(close_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.status[args[1]] != 'open')
 
 def approach_door(obs, args):
     print('approach_door')
@@ -86,4 +90,4 @@ def cross_door(obs, args):
     elif obs.get(3,6).__class__.__name__ == 'Door':
         print(3,6, obs.get(3,6))
         return 'forward'
-skill_cross_door = Skill(cross_door, lambda s,a: True, lambda s,a: True, lambda state,args: state.loc['Door'][0] == state.loc['Red'][0] + 1 )
+skill_cross_door = Skill(cross_door, lambda state,args: state.status[args[1]] == 'open' and state.loc['Door'][0] == state.loc['Red'][0] - 1 and state.dir['Red'] == 2, lambda s,a: True, lambda state,args: state.loc['Door'][0] == state.loc['Red'][0] + 1 )

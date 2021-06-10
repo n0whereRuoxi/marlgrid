@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from planner.action_instance import ActionInstance
 from planner.chronicle import Chronicle
-from examples.skills import skill_get_key, skill_unlock_door, skill_open_door, skill_approach_door, skill_cross_door
+from examples.skills import skill_get_key, skill_unlock_door, skill_open_door, skill_approach_door, skill_cross_door, skill_close_door
 from planner.STNU import STNU
 import uuid
 from marlgrid.utils.video import GridRecorder
@@ -53,6 +53,13 @@ stnu.add_edge(action4.end, action5.start, (0, None))
 stnu.add_edge(action5.start, action5.end, (1, None))
 chronicle.temporal_actions.append(action5)
 
+action6 = ActionInstance(uuid.uuid1(), uuid.uuid1(), 'Blue', skill_close_door, ('Blue', 'Door'))
+stnu.add_vertex(action6.start)
+stnu.add_vertex(action6.end)
+stnu.add_edge(action5.end, action6.start, (0, None))
+stnu.add_edge(action6.start, action6.end, (1, None))
+chronicle.temporal_actions.append(action6)
+
 
 
 env = gym.make('MarlGrid-2AgentDoorKey9x9-v0')
@@ -78,6 +85,7 @@ def get_enabled_actions(chronicle_, stnu_):
             enabled_actions.append(a)
     return enabled_actions
 
+# simplified dispatch algorithm, no constraint propagation (PC)
 active_actions = []
 while not done:
     env.render()
@@ -86,10 +94,8 @@ while not done:
     env.ground_grid_obs(red_obs,blue_obs)
     env.state.display()
     # enabled = list(stnu.vert_dict[now].adjacent.keys())
-
     red_action = 'wait'
     blue_action = 'wait'
-
     enabled_actions = get_enabled_actions(chronicle, stnu)
     # try to trigger the enabled actions:
     for a in enabled_actions:
@@ -113,9 +119,7 @@ while not done:
         time.sleep(1)
     act1 = getattr(env.agents[0].actions, red_action)
     act2 = getattr(env.agents[1].actions, blue_action)
-    # print('active actions: ', [a.skill for a in active_actions])
     print(count, [act1, act2])
     obs, rew, done, _ = env.step([act1, act2])
-    # print(count, [act1, act2])
     env.trigger_event()
     count += 1
