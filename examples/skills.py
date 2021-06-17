@@ -90,4 +90,9 @@ def cross_door(obs, args):
     elif obs.get(3,6).__class__.__name__ == 'Door':
         print(3,6, obs.get(3,6))
         return 'forward'
-skill_cross_door = Skill(cross_door, lambda state,args: state.status[args[1]] == 'open' and state.loc['Door'][0] == state.loc['Red'][0] - 1 and state.dir['Red'] == 2, lambda s,a: True, lambda state,args: state.loc['Door'][0] == state.loc['Red'][0] + 1 )
+skill_cross_door = Skill(
+    cross_door, 
+    lambda state,args: state.status[args[1]] == 'open' and state.loc['Door'][0] == state.loc['Red'][0] - 1 and state.dir['Red'] == 2, 
+    lambda s,a: True, 
+    lambda state, args: state.loc['Door'][0] == state.loc['Red'][0] + 1 
+)

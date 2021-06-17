@@ -6,11 +6,10 @@ from planner.chronicle import Chronicle
 from examples.skills import skill_get_key, skill_unlock_door, skill_open_door, skill_approach_door, skill_cross_door, skill_close_door
 from planner.STNU import STNU
 import uuid
-from marlgrid.utils.video import GridRecorder
-import gym_minigrid
+# import gym_minigrid
+# register doorkey env
 import marlgrid.envs
 import gym
-import random
 import time
 
 chronicle = Chronicle()
@@ -60,15 +59,13 @@ stnu.add_edge(action5.end, action6.start, (0, None))
 stnu.add_edge(action6.start, action6.end, (1, None))
 chronicle.temporal_actions.append(action6)
 
-
-
 env = gym.make('MarlGrid-2AgentDoorKey9x9-v0')
 env.max_steps = 200
 obs = env.reset()
 count = 0
 done = False
-now = chronicle.init_time_id
-stnu.vert_dict[now].trigger()
+stnu.vert_dict[chronicle.init_time_id].trigger()
+active_actions = []
 
 def is_enabled(time_point, stnu_):
     enabled = True
@@ -86,7 +83,6 @@ def get_enabled_actions(chronicle_, stnu_):
     return enabled_actions
 
 # simplified dispatch algorithm, no constraint propagation (PC)
-active_actions = []
 while not done:
     env.render()
     red_obs, _ = env.gen_obs_grid(env.agents[0])
