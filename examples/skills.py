@@ -34,7 +34,7 @@ def get_key(obs, args):
         return 'right'
 skill_get_key = Skill(get_key, lambda s,a: True, lambda s,a: True, lambda state, args: state.loc[args[1]] == args[0])
 
-def unlock_door(obs, args):
+def unlock_door(obs, args): # TO-DO: args could be a dictionary "kwargs" "* **"
     print('unlock_door')
     if ('yellow', 'Door') not in obs:
         move_action_list = ['left', 'right', 'forward']
@@ -50,7 +50,16 @@ def unlock_door(obs, args):
         return 'left'
     if idx > 45:
         return 'right'
-skill_unlock_door = Skill(unlock_door, lambda state, args: state.loc['Key'] == args[0], lambda s,a: True, lambda state,args: state.status[args[1]] != 'locked')
+skill_unlock_door = Skill(unlock_door, 
+    lambda state, args: state.loc['Key'] == args[0], 
+    lambda s,a: True, 
+    lambda state,args: state.status[args[1]] != 'locked'
+)
+action2 = Action(head = 'unlock_door', 
+    arg_types = (AGENT, DOOR, KEY), 
+    goal = ['status', ArgIdx(1), 'unlocked'], 
+    precond = [['loc', ArgIdx(2), ArgIdx(0)]]
+)
 
 def open_door(obs, args):
     print('open_door')
