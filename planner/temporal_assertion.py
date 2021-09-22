@@ -5,3 +5,4 @@ class Assertion:
         self.var = var
         self.args = args
         self.value = value
+

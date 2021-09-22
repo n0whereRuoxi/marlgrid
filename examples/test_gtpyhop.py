@@ -42,13 +42,13 @@ def same_color(d,k): # TO-DO
 def get_key(state,a,k):
     # no preconditoin
     if a in rigid.types['agent']: # checks argument type
-        return skill_get_key
+        return (skill_get_key, a, k)
 gtpyhop.declare_methods('loc',get_key)
 
 #action2 = Action(head = 'unlock_door', arg_types = (AGENT, DOOR, KEY), goal = ['status', ArgIdx(1), 'unlocked'], precond = [['loc', ArgIdx(2), ArgIdx(0)]])
-def unlock_door(state,a,d):
-    if has_right_key(state,a,d):
-        return skill_unlock_door
+def unlock_door(state,a,d,k):
+    if state.loc[k] == a:
+        return (skill_unlock_door, a,d)
 gtpyhop.declare_methods('status',unlock_door)
 
 # action: open_door(a: AGENT,d: DOOR)
@@ -57,7 +57,7 @@ gtpyhop.declare_methods('status',unlock_door)
 # action3 = Action(head = 'open_door', arg_types = (AGENT, DOOR), goal = ['status', ArgIdx(1), 'open'], precond = [['status', ArgIdx(1), 'unlocked'],['at', (ArgIdx(0), ArgIdx(1)), 'front']])
 def open_door(state,a,d):
     if at_door(state.loc[a], state.dir[a], state.loc[d]) and state.status[d] == 'unlocked':
-        return skill_open_door
+        return (skill_open_door, a, d)
 gtpyhop.declare_methods('status',open_door)
 
 # method1 = Method(head = 'open_locked_door', arg_types = (AGENT, DOOR, KEY), goal = ['status', ArgIdx(1), 'open'], precond = [], subgoals = (['loc', ArgIdx(2), ArgIdx(0)], ['status', ArgIdx(1), 'unlocked'], ['status', ArgIdx(1), 'locked']))
@@ -68,14 +68,14 @@ def open_locked_door(state, a,d,k):
 gtpyhop.declare_methods('status',open_locked_door)
 
 def cross_locked_door(state, a1, a2, d, k):
-    if reachable(a2,k) and same_color(d,k) and state.status[d] == 'locked':
+    if reachable(a2,state.loc[k]) and same_color(d,k) and state.status[d] == 'locked':
         return [('status', a2, d, k), ('loc', a1, d), ('loc', a1, d)]
         # return [('status', d, 'open'), ('loc', a1, back(d)), ('loc', a1, front(d))]
 gtpyhop.declare_methods('loc',cross_locked_door)
 
 def move_to(state, a, l):
     return (skill_move_to, a, l)
-gtpyhop.declare_methods('loc',cross_locked_door)
+gtpyhop.declare_methods('loc',move_to)
 
 print("- If verbose=0, GTPyhop returns the solution but prints nothing.\n")
 gtpyhop.verbose = 0

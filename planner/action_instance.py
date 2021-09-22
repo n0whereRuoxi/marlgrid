@@ -16,4 +16,4 @@ class ActionInstance:
 # general translation alg
 
 # methods -> actions -> learn skills according to the action definition
-# a simulation of the skill to see if the assersions in the action actually happends 
+# a simulation of the skill to see if the assersions in the action actually happends

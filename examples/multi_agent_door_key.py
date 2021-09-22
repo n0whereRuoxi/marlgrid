@@ -48,8 +48,7 @@ def o_hold_door(obs):
     return 'hold'
 
 def o_open_door(obs):
-    yield 'grasp'
-    yield 'slide'
+    return 'toggle'
 
 def o_approach_door(obs):
     if ('yellow', 'Door') not in obs:
@@ -153,7 +152,7 @@ while not done:
     env.render()
     obs_red, _ = env.gen_obs_grid(env.agents[0])
     obs_blue, _ = env.gen_obs_grid(env.agents[1])
-    env.ground_grid_obs(obs_blue)
+    env.ground_grid_obs(obs_red, obs_blue)
     env.state.display()
     time.sleep(1)
     # act = env.action_space.sample()
@@ -162,9 +161,7 @@ while not done:
     elif env.state.status['Door'] != 'closed' and env.state.status['Door'] != 'open':
         action = o_unlock_door(obs_blue)
     elif env.state.status['Door'] != 'locked' and env.state.status['Door'] != 'open' and count < 13:
-        action = 'grasp' if not env.agents[1].grasping else 'slide'
-    elif count == 13:
-        action = 'ungrasp'
+        action = o_open_door(obs_blue)
     else:
         action = 'wait'
     print(count, action)

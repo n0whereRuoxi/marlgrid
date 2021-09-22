@@ -332,30 +332,10 @@ class Ball(WorldObj):
 
 class Door(WorldObj):
     states = IntEnum("door_state", "open closed locked")
-    # open_idx = 0
-    grasped = False 
-    def event(self):
-        # pass
-        # print(self.states != self.states.locked)
-        # print(self.state == self.states.open, self.state == self.states.closed, self.state == self.states.locked, self.open_idx)
-        if self.state == self.states.open and not self.grasped:
-            # if self.open_idx == 0:
-            #     self.open_idx = 1
-            # elif self.open_idx == 1:
-                self.state = self.states.closed
 
     def can_overlap(self):
         return self.state == self.states.open# and self.agent is None  # is open
 
-    def can_hold(self):
-        return True
-
-    def can_slide(self):
-        return True
-
-    def can_grasp(self):
-        return True
-    
     def see_behind(self):
         return self.state == self.states.open  # is open
 
@@ -368,22 +348,10 @@ class Door(WorldObj):
                 and agent.carrying.color == self.color
             ):
                 self.state = self.states.closed
-        # elif self.state == self.states.closed:  # is unlocked but closed
-        #     self.state = self.states.open
-        # elif self.state == self.states.open:  # is open
-        #     self.state = self.states.closed
-        return True
-
-    # def hold(self):
-    #     if self.state == self.states.closed:  # is unlocked but closed
-    #         self.state = self.states.open
-    #     self.open_idx = 0
-    #     return True
-
-    def slide(self):
-        if self.state == self.states.closed:  # is unlocked but closed
+        elif self.state == self.states.closed:  # is unlocked but closed
             self.state = self.states.open
-        # self.open_idx = 0
+        elif self.state == self.states.open:  # is open
+            self.state = self.states.closed
         return True
 
     def render(self, img):
@@ -409,6 +377,7 @@ class Door(WorldObj):
 
             # Draw door handle
             fill_coords(img, point_in_circle(cx=0.75, cy=0.50, r=0.08), c)
+
 
 
 class Box(WorldObj):

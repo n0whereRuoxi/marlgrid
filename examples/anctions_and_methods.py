@@ -22,13 +22,15 @@ class ArgIdx:
 # TO-DO: How to tell the agent to get yellow key using the the same skill that can get any keys? we pass arguments along with the percetion as input into the policy
 
 # action: get_key(a: AGENT,k: KEY)
-# goal: loc(k) = a
+# goal: loc(k) != a, on(k,a) = Ture
 # precond: None
 action1 = Action(head = 'get_key', arg_types = (AGENT, KEY), goal = ['loc', ArgIdx(1), ArgIdx(0)], precond = [])
 
 # action: unlock_door(a: AGENT,d: DOOR,k: KEY)
 # goal: status(d) = 'unlocked'
-# precond: loc(k) = a (and same_color(d,k) = 'true')
+# precond: loc(k) = a, color(d) = color(k)   (and same_color(d,k) = 'true')
+# TO-DO: pass in the color as one parameter
+# TO-DO: take a look at the block-word: 
 action2 = Action(head = 'unlock_door', arg_types = (AGENT, DOOR, KEY), goal = ['status', ArgIdx(1), 'unlocked'], precond = [['loc', ArgIdx(2), ArgIdx(0)]])
 
 # action: open_door(a: AGENT,d: DOOR)
@@ -40,4 +42,9 @@ action3 = Action(head = 'open_door', arg_types = (AGENT, DOOR), goal = ['status'
 # goal: status(d) = 'open'
 # precond: None
 # subgoals: loc(k) = a, status(d) = 'unlocked', then status(d) = 'open'
+# status('Door') = 'open'
+# have to execure the python code
 method1 = Method(head = 'open_locked_door', arg_types = (AGENT, DOOR, KEY), goal = ['status', ArgIdx(1), 'open'], precond = [], subgoals = (['loc', ArgIdx(2), ArgIdx(0)], ['status', ArgIdx(1), 'unlocked'], ['status', ArgIdx(1), 'open']))
+
+# what is missing in GTPhop (temporal component), 
+#
